@@ -1,44 +1,57 @@
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: 	Deployment
 metadata: 
-  name: frontend
-  namespace: three-tier
+  name: secert santa
 spec:
   minReadySeconds: 3
   replicas: 2
   selector:
     matchLabels:
-      role: frontend
+      app: secretsanta
   strategy:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 50%
-      maxUnavailable: 50%      
+      maxUnavailable: 50%    
   template:
     metadata:
-      name: front
-      labels: 
-        role: frontend
+      name: santa
+      labels:
+        app: secretsanta
     spec:
       containers:
-        - image: meena835/tws:frontend
-          name: tws
+        - image: meena835/secretsanta
+          name: cart
           ports:
-            - containerPort: 3000
-                
-    
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+          livenessProbe:
+            tcpSocket: 
+              port: 8080
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"  
+
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: ss
-  namespace: three-tier
 spec: 
   type: LoadBalancer
   selector:
-    role: frontend
+    app: secretsanta
   ports:
     - protocol: TCP
-      port: 30000
-      targetport: 3000                
+      port: 35000
+      targetport: 8080                                      
